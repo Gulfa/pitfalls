@@ -21,7 +21,8 @@ n_SI[] <- rbinom(S[i], p_SI[i])
 n_IR[] <- rbinom(I[i], p_IR)
 
 
-lambda_ij[,] <- beta * mixing_matrix[i,j]*I[j]
+lambda_ij[,] <- beta * mixing_matrix[i,j]*I[j]/sum(N)*susceptibility[i]*transmisibility[j]
+
 
 
 ## Total population size
@@ -40,7 +41,9 @@ dim(p_SI) <- n
 dim(n_SI) <- n
 dim(n_IR) <- n
 dim(lambda_ij) <- c(n,n)
-
+dim(beta_norm) <- n
+dim(susceptibility) <- n
+dim(transmisibility) <- n
 ## User defined parameters - default in parentheses:
 gamma <- user(0.1)
 
@@ -51,4 +54,7 @@ mixing_matrix[,] <- user()
 dim(mixing_matrix) <- c(n,n)
 dim(S_ini) <- n
 dim(I_ini) <- n
+beta_norm[] <- user()
+susceptibility[] <- user()
+transmisibility[] <- user()
               
