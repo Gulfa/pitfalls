@@ -10,8 +10,9 @@ beta_day[] <- user()
 update(S[]) <- S[i] - n_SI[i]
 update(I[]) <- I[i] + n_SI[i] - n_IR[i]
 update(R[]) <- R[i] + n_IR[i]
-
+update(inc[]) <- n_SI[i]
 ## Individual probabilities of transition:
+
 p_SI[] <- 1 - exp(-sum(lambda_ij[i,])* dt) # S to I
 p_IR <- 1 - exp(-gamma * dt) # I to R
 
@@ -32,11 +33,13 @@ N[] <- S[i] + I[i] + R[i]
 initial(S[]) <- S_ini[i]
 initial(I[]) <- I_ini[i]
 initial(R[]) <- 0
+initial(inc[]) <- 0
 
 dim(S) <- n
 dim(I) <- n
 dim(R) <- n
 dim(N) <- n
+dim(inc) <- n
 dim(p_SI) <- n
 dim(n_SI) <- n
 dim(n_IR) <- n
