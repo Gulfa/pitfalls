@@ -22,7 +22,7 @@ for(R in Rs){
 
 
 out <- data.frame()
-for (R in seq(1.1, 3, by=0.01)){
+for (R in seq(1.1, 4, by=0.01)){
   for(t in c(20,50, 100)){
 
     input_mats <- cij_NGM(diag(c(1,9)), c(90000,10000), c(1,1.2), c(1,1))
