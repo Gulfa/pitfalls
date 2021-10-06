@@ -327,8 +327,8 @@ res_be_1 <- run_4x4(matrix(c(assort,1,1, assort), nrow=2),
                1.3,
                c(1, sus, 1 * b, sus * b),
                rep(1,4), n=100)
-N_chain = 100000
-burn_in = 50000
+N_chain = 1000000
+burn_in = 100000
 
 perform_one_MCMC = function(res1, res2){
   N_observed_infected_A = res1[1] + res1[2]
@@ -377,32 +377,45 @@ for (res in combres){
   all_be1b = c(all_be1b, be1b)
   all_be2a = c(all_be2a, be2a)
   all_be2b = c(all_be2b, be2b)
-  all_assort1 = c(all_assort1, params1[burn_in:N_chain, 2])
-  all_assort2 = c(all_assort2, params3[burn_in:N_chain, 2])
+  all_assort1 = c(all_assort1, res$params1[burn_in:N_chain, 2])
+  all_assort2 = c(all_assort2, res$params3[burn_in:N_chain, 2])
   
   mid1a <- c(mid1a, mean(be1a))
-  lower1a <- c(lower1a, quantile(be1a, c(0.025, 0.975)))
-  upper1a <- c(upper1a, quantile(be1a, c(0.025, 0.975)))
+  lower1a <- c(lower1a, quantile(be1a, c(0.025)))
+  upper1a <- c(upper1a, quantile(be1a, c(0.975)))
   mid1b <- c(mid1b, mean(be1b))
-  lower1b <- c(lower1b, quantile(be1b, c(0.025, 0.975)))
-  upper1b <- c(upper1b, quantile(be1b, c(0.025, 0.975)))
+  lower1b <- c(lower1b, quantile(be1b, c(0.025)))
+  upper1b <- c(upper1b, quantile(be1b, c(0.975)))
   mid2a <- c(mid2a, mean(be2a))
-  lower2a <- c(lower2a, quantile(be2a, c(0.025, 0.975)))
-  upper2a <- c(upper2a, quantile(be2a, c(0.025, 0.975)))
+  lower2a <- c(lower2a, quantile(be2a, c(0.025)))
+  upper2a <- c(upper2a, quantile(be2a, c(0.975)))
   mid2b <- c(mid2b, mean(be2b))
-  lower2b <- c(lower2b, quantile(be2b, c(0.025, 0.975)))
-  upper2b <- c(upper2b, quantile(be2b, c(0.025, 0.975)))
+  lower2b <- c(lower2b, quantile(be2b, c(0.025)))
+  upper2b <- c(upper2b, quantile(be2b, c(0.975)))
 
 }
 
-par(mfrow = c(3, 2))
-hist(all_be1a, xlab = expression(beta[e]), main = paste("True ", expression(beta[e] = 1.05), " assortativity unknown"))
-hist(all_be1b, xlab = expression(beta[e]), main = paste("True ", expression(beta[e] = 1.05), " assortativity known"))
-hist(all_be2a, xlab = expression(beta[e]), main = paste("True ", expression(beta[e] = 1), " assortativity unknown"))
-hist(all_be2b, xlab = expression(beta[e]), main = paste("True ", expression(beta[e] = 1), " assortativity known"))
 
-hist(all_assort1, xlab = "Assortativity", main = paste("True ", expression(beta[e] = 1.05), " assortativity unknown"))
-hist(all_assort2, xlab = "Assortativity", main = paste("True ", expression(beta[e] = 1), " assortativity unknown"))
+print(c(mean(all_be1a), quantile(all_be1a, c(0.025, 0.975))))
+print(c(mean(all_be1b), quantile(all_be1b, c(0.025, 0.975))))
+print(c(mean(all_be2a), quantile(all_be2a, c(0.025, 0.975))))
+print(c(mean(all_be2b), quantile(all_be2b, c(0.025, 0.975))))
+
+print(c(mean(all_assort1), quantile(all_assort1, c(0.025, 0.975))))
+print(c(mean(all_assort2), quantile(all_assort2, c(0.025, 0.975))))
+
+print(cor(all_be1a, all_assort1))
+print(cor(all_be2a, all_assort2))
+
+pdf("histograms.pdf", width = 5, height = 8)
+par(mfrow = c(3, 2))
+hist(all_be1a, xlab = expression(beta[e]), main = expression(paste(beta[e], "=1.05 assortativity unknown")), font.main = 1, cex.lab = 1, cex.main = 1)
+hist(all_be1b, xlab = expression(beta[e]), main = expression(paste(beta[e], "=1.05 assortativity known")), font.main = 1, cex.lab = 1, cex.main = 1)
+hist(all_be2a, xlab = expression(beta[e]), main = expression(paste(beta[e], "=1 assortativity unknown")), font.main = 1, cex.main = 1, cex.lab = 1)
+hist(all_be2b, xlab = expression(beta[e]), main = expression(paste(beta[e], "=1 assortativity known")), font.main = 1, cex.main = 1, cex.lab = 1)
+
+hist(all_assort1, xlab = "Assortativity", main = expression(paste(beta[e], "=1.05 assortativity unknown")), font.main = 1, cex.lab = 1, cex.main=1)
+hist(all_assort2, xlab = "Assortativity", main = expression(paste(beta[e], "=1 assortativity unknown")), font.main = 1, cex.lab=1, cex.main=1)
 
 dev.off()
 
@@ -411,13 +424,14 @@ df1b = data.frame("mid" = mid1b, "lower" = lower1b, "upper" = upper1b)
 df2a = data.frame("mid" = mid2a, "lower" = lower2a, "upper" = upper2a)
 df2b = data.frame("mid" = mid2b, "lower" = lower2b, "upper" = upper2b)
 
-supp1a = add_theme(ggplot(df1a, aes(x = 1:100, y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.05, fatten = 0.1, shape = 21) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(paste("True ", expression(beta[e] = 1.05), " assortativity unknown")) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab(""))
-supp1b = add_theme(ggplot(df1b, aes(x = 1:100, y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.05, fatten = 0.1, shape = 21) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(paste("True ", expression(beta[e] = 1.05), " assortativity known")) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab(""))
-supp2a = add_theme(ggplot(df2a, aes(x = 1:100, y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.05, fatten = 0.1, shape = 21) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(paste("True ", expression(beta[e] = 1), " assortativity unknown")) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab(""))
-supp2b = add_theme(ggplot(df2b, aes(x = 1:100, y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.05, fatten = 0.1, shape = 21) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(paste("True ", expression(beta[e] = 1), " assortativity known")) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab(""))
+
+supp1a = add_theme(ggplot(df1a, aes(x = 1:dim(df1a)[1], y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.4, fatten = 0.9) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(expression(paste(beta[e], "=1.05 assortativity unknown"))) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab("")) + ylim(0.9, 1.25)
+supp1b = add_theme(ggplot(df1b, aes(x = 1:dim(df1b)[1], y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.4, fatten = 0.9) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(expression(paste(beta[e], "=1.05 assortativity known"))) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab("")) + ylim(0.9, 1.25)
+supp2a = add_theme(ggplot(df2a, aes(x = 1:dim(df2a)[1], y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.4, fatten = 0.9) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(expression(paste(beta[e], "=1 assortativity unknown"))) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab("")) + ylim(0.9, 1.25)
+supp2b = add_theme(ggplot(df2b, aes(x = 1:dim(df2b)[1], y=mid, ymin=lower, ymax=upper))  +  geom_pointrange(size = 0.4, fatten = 0.9) + ylab(expression(paste("Regression coefficent ethnicity ", beta[e], " "))) + ggtitle(expression(paste(beta[e], "=1 assortativity known"))) + theme(plot.title = element_text(size = 8, face = "plain")) + scale_x_discrete(labels = NULL, breaks = NULL) + xlab("")) + ylim(0.9, 1.25)
 
 
 fsup = grid.arrange(supp1a, supp1b, supp2a, supp2b, nrow = 2)
-ggsave(fsup, file = "fig_supp.eps", device = cairo_ps, width = 5, height = 8)
+ggsave(fsup, file = "fig_supp.eps", device = cairo_ps, width = 5, height = 6)
 
-ggsave(fsup, file = "fig_supp.pdf", device = pdf, width = 5, height = 8)
+ggsave(fsup, file = "fig_supp.pdf", device = pdf, width = 5, height = 6)
