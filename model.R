@@ -6,7 +6,8 @@ odin_model <- odin.dust::odin_dust("odinmodel.R")
 run_model <- function(mixing_matrix, beta_day, N, t, I_ini,
                       n_particles, n_threads=1, beta_norm=NULL,
                       susceptibility=NULL,
-                      transmisibility=NULL, dt=0.2, print_index=FALSE, gamma=1/3){
+                      transmisibility=NULL, dt=0.2, print_index=FALSE, gamma=1/3,
+                      import=0){
   if(is.null(beta_norm)) beta_norm <- N
   if(is.null(susceptibility)) susceptibility <- rep(1, dim(mixing_matrix)[1])
   if(is.null(transmisibility)) transmisibility <- rep(1, dim(mixing_matrix)[1])
@@ -21,6 +22,7 @@ run_model <- function(mixing_matrix, beta_day, N, t, I_ini,
     transmisibility=transmisibility,
     N_steps=t/dt,
     dt=dt,
+    import=import,
     gamma=gamma
   )
   dust_model <- odin_model$new(pars = params,
@@ -51,7 +53,8 @@ plot_2x2_RR <- function(fractions){
 }
 
 plot_history <- function(hist, var="I"){
-  n <- (dim(hist)[1] - 1)/3
+  n <- (dim(hist)[1] - 1)/4
+  print(n)
   sims <- dim(hist)[2]
   all_dfs <- list()
   for(i in 1:n){

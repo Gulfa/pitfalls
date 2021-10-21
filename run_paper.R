@@ -43,7 +43,7 @@ for (R in seq(1.1, 3, by=0.01)){
 
 add_theme(ggplot(out ,aes(x=R, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(time)), alpha=0.5) + geom_line(aes(color=factor(time)))+ scale_y_continuous(trans='log10') + ylab("Relative Risk") + xlab("Reproduction Number (R0)")+ scale_fill_brewer("Time (days)", palette = "Dark2")+ scale_color_brewer("Time (days)", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
 
-ggsave("fig1_RR.png")
+ggsave("fig1_RR.eps", device="cairo_ps")
 
 
 

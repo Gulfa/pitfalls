@@ -1,79 +1,82 @@
 library(odin.dust)
 library(ggplot2)
 library(data.table)
-odin_model <- odin.dust::odin_dust("odinmodel.R")
+library(dplyr)
+source("model.R")
 
-
-
-
-run_model <- function(mixing_matrix, beta_day, N, t, I_ini,
-                      n_particles, n_threads=1){
-  print(dim(mixing_matrix)[1])
-  params <- list(
-    n=dim(mixing_matrix)[1],
-    S_ini=N - I_ini,
-    I_ini=I_ini,
-    mixing_matrix=mixing_matrix,
-    beta_day=beta_day,
-    N_steps=t
-  )
-  dust_model <- odin_model$new(pars = params,
-                               step = 1,
-                               n_particles = n_particles,
-                               n_threads = n_threads
-                               )
-  
-  res <- dust_model$simulate(1:t)
-  n <- dim(mixing_matrix)[1]
-  R <- res[(2+2*n):(1+3*n),,t]
-  fractions <- R / (N + 1e-9)
-
-  return(list(fractions=fractions,
-              R=R,
-         full_results=res))
-}
-
-plot_2x2_RR <- function(fractions){
-
-  RR <- fractions[2,]  / fractions[1,]
-
-  ggplot(data.frame(RR=RR)) + geom_histogram(aes(x=RR))
-  
-  
-}
-
-plot_history <- function(hist, var="I"){
-  n <- (dim(hist)[1] - 1)/3
-  sims <- dim(hist)[2]
-  all_dfs <- list()
-  for(i in 1:n){
-    group <- hist[c((1 + i), (1+n+i), (1+2*n+i)),,]
-    dfs <- list()
-    for(sim in 1:sims){
-      dfs[[sim]] <- data.frame(S=group[1, sim,],
-                       I=group[2, sim,],
-                       R=group[3, sim,],
-                       t=1:dim(hist)[3],
-                       sim=sim,
-                       group=i)
-    }
+out <- data.frame()
+for (b in seq(0.05, 0.6, by=0.025)){
+  for(t in c(50, 100, 200)){
+    res <- run_model(diag(c(1, 9)), rep(b, t), c(90000, 10000), t, c(90,10), 1000, 1,
+                     susceptibility = c(1,1.2))
+    RR <- quantile(res$fractions[2,]  / res$fractions[1,], probs=c(0.2, 0.5, 0.8))
     
-    all_dfs[[i]] <- rbindlist(dfs)
+    out <- rbind(out, data.frame(min=RR[1],
+                                 med=RR[2],
+                                 max=RR[3],
+                                 beta=b,
+                                 time=t))
   }
-  df <- rbindlist(all_dfs)
-  df[, factor_group:=paste(sim, group)]
+}
   
-  ggplot(df) + geom_line(aes(x=t, y=get(var), group=factor_group, color=factor(group))) + ylab(var)
+ggplot(out ,aes(x=beta, y=med, ymin=min, ymax=max, fill=factor(time), color=factor(time))) + geom_ribbon(alpha=0.3) + geom_line()+ scale_y_continuous(trans='log10') + ylab("RR (B/A)")#+ geom_line(data=data.frame(x=c(0.08, 0.3), y=c(1.2, 1.2)), aes(x=x, y=y))
+ggsave("fig1_RR.png")
 
+
+out <- data.frame()
+
+N <- c(90000, 10000)
+input_mats <- cij_NGM(matrix(1,nrow=2, ncol=2), N, c(1,1), c(1,1))
+beta <- 1.3/input_mats$beta_R
+
+for(bc in c(0.1, 0.5, 1)){
+  for(sus in seq(1, 10)){
+    t <- 400
+    b <- 0.05
+    c_ij <- matrix(c(1,bc,bc,1), nrow=2)
+    N <- c(90000, 10000)
+    input_mats <- cij_NGM(c_ij, N, c(1,sus), c(1,1))
+    res <- run_model(input_mats$c_ij, rep(beta, t), N, t,
+                     c(90,10), 400, 1, susceptibility = c(1,sus))
+    tot_inf <- quantile(res$full_results[6,,t]/90000, probs=c(0.2, 0.5, 0.8))
+    mean(tot_inf)
+    out <- rbind(out, data.frame(min=tot_inf[1],
+                                 med=tot_inf[2],
+                                 max=tot_inf[3],
+                                 bc=bc,
+                                 sus=sus))
+  }
 }
 
-res <- run_model(diag(c(1/90000, 1.2/10000)), rep(0.2, 200), c(90000, 10000), 200, c(90,10), 200, 1)
-
-plot_history(res$full_results, var="R")
-
-plot_2x2_RR(res$fractions)
+ggplot(out, aes(x=sus, y=med, ymin=min, ymax=max, fill=factor(bc), color=factor(bc))) + geom_line() + geom_ribbon(alpha=0.3) + ylab("Fraction infected in low-risk group") + xlab("Increased susceptibility in high-risk group")
+ggsave("fig2_RR.png")
 
 
-res <- run_model(diag(c(1/10000, 1.1/10000, 1.2/10000, 1.3/10000)), rep(0.2, 200), c(10000, 10000, 10000, 10000), 200, c(10,10,10,10), 200, 1)
 
-plot_history(res$full_results, var="I")
+
+
+out <- data.frame()
+for( sus in c(2)){
+  for(assort in c(0.1,0.5, 1)){
+    res <- run_regs(matrix(c(1,assort, assort, 1), nrow=2),
+                    matrix(c(1,1, 1, 1), nrow=2),
+                    1.3,
+                    c(1,sus,1,sus),
+                    rep(1,4), n=100)
+    
+    for(r in res){
+      mid <- exp(coefficients(r)[2])
+      ci <- exp(confint(r)[2,])
+      out <- rbind(out, data.frame(
+                          mid=mid,
+                          lower=ci[1],
+                          upper=ci[2],
+                          assort=assort,
+                          sus=sus))
+    }
+
+  }
+}
+
+ggplot(out, aes(x=assort, y=mid, ymin=lower, ymax=upper, color=factor(sus))) + geom_point(position="jitter") + geom_pointrange( position="jitter") + ylab("RR(N)") + xlab("Off-diagonal element in matrix")
+ggsave("fig3_betas.png")

@@ -6,9 +6,11 @@ N_steps <- user()
 beta <- beta_day[step]
 dim(beta_day) <- N_steps
 beta_day[] <- user()
+import <- user(0)
 
-update(S[]) <- S[i] - n_SI[i]
-update(I[]) <- I[i] + n_SI[i] - n_IR[i]
+
+update(S[]) <- S[i] - n_SI[i] - n_import[i]
+update(I[]) <- I[i] + n_SI[i] - n_IR[i] + n_import[i]
 update(R[]) <- R[i] + n_IR[i]
 update(inc[]) <- n_SI[i]
 ## Individual probabilities of transition:
@@ -24,7 +26,7 @@ n_IR[] <- rbinom(I[i], p_IR)
 
 lambda_ij[,] <- beta * mixing_matrix[i,j]*I[j]/sum(N)*susceptibility[i]*transmisibility[j]
 
-
+n_import[] <- rbinom(S[i], import/sum(S))
 
 ## Total population size
 N[] <- S[i] + I[i] + R[i]
@@ -43,10 +45,12 @@ dim(inc) <- n
 dim(p_SI) <- n
 dim(n_SI) <- n
 dim(n_IR) <- n
+dim(n_import) <- n
 dim(lambda_ij) <- c(n,n)
 dim(beta_norm) <- n
 dim(susceptibility) <- n
 dim(transmisibility) <- n
+
 ## User defined parameters - default in parentheses:
 gamma <- user(0.1)
 
