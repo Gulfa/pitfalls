@@ -4,7 +4,7 @@ library(data.table)
 library(dplyr)
 library(gridExtra)
 source("model.R")
-
+library(ggpubr)
 # Checking final size
 fs <- c()
 Rs <- seq(0.8, 2, by=0.05)
@@ -41,6 +41,8 @@ for (R in seq(1.1, 3, by=0.01)){
 }
 
 
+
+#add
 #add_theme(ggplot(out ,aes(x=R, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(col=factor(time)), fill = "NA", linetype="dashed") + geom_line(aes(color=factor(time)))+ scale_y_continuous(trans='log10') + ylab("Relative risk") + xlab(expression(paste("Reproduction number ", R[0], sep = " "))) + scale_fill_brewer("Time (days)", palette = "Dark2")+ scale_color_brewer("Time (days)", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
 add_theme(ggplot(out ,aes(x=R, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(time)), alpha = 0.5) + geom_line(aes(color=factor(time)))+ scale_y_continuous(trans='log10') + ylab("Relative risk") + xlab(expression(paste("Reproduction number ", R[0], sep = " "))) + scale_fill_brewer("Time (days)", palette = "Dark2")+ scale_color_brewer("Time (days)", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
 
@@ -435,3 +437,170 @@ fsup = grid.arrange(supp1a, supp1b, supp2a, supp2b, nrow = 2)
 ggsave(fsup, file = "fig_supp.eps", device = cairo_ps, width = 5, height = 6)
 
 ggsave(fsup, file = "fig_supp.pdf", device = pdf, width = 5, height = 6)
+
+
+
+
+## Figure S1 ## 
+
+R = 1.1
+input_mats <- cij_NGM(diag(c(1,9)), c(90000,10000), c(1,1.2), c(1,1))
+
+beta <- R/input_mats$beta_R
+
+res <- run_model(diag(c(1, 9)), rep(beta, t), c(90000, 10000), t, c(90,10), 2000, n_threads=3,
+                 susceptibility = c(1,1.2))
+tmp11A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp11B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp11A) = c("min", "med", "max")
+colnames(tmp11B) = c("min", "med", "max")
+out11 = data.frame(cbind(rbind(tmp11A, tmp11B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out11$min = as.numeric(out11$min)
+out11$med = as.numeric(out11$med)
+out11$max = as.numeric(out11$max)
+S1a = add_theme(ggplot(out11 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), R = 1.1") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+R = 1.5 
+input_mats <- cij_NGM(diag(c(1,9)), c(90000,10000), c(1,1.2), c(1,1))
+
+beta <- R/input_mats$beta_R
+
+res <- run_model(diag(c(1, 9)), rep(beta, t), c(90000, 10000), t, c(90,10), 2000, n_threads=3,
+                 susceptibility = c(1,1.2))
+tmp15A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp15B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp15A) = c("min", "med", "max")
+colnames(tmp15B) = c("min", "med", "max")
+out15 = data.frame(cbind(rbind(tmp15A, tmp15B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out15$min = as.numeric(out15$min)
+out15$med = as.numeric(out15$med)
+out15$max = as.numeric(out15$max)
+S1b = add_theme(ggplot(out15 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), R = 1.5") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+R = 2.0 
+input_mats <- cij_NGM(diag(c(1,9)), c(90000,10000), c(1,1.2), c(1,1))
+
+beta <- R/input_mats$beta_R
+
+res <- run_model(diag(c(1, 9)), rep(beta, t), c(90000, 10000), t, c(90,10), 2000, n_threads=3,
+                 susceptibility = c(1,1.2))
+tmp2A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp2B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp2A) = c("min", "med", "max")
+colnames(tmp2B) = c("min", "med", "max")
+out2 = data.frame(cbind(rbind(tmp2A, tmp2B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out2$min = as.numeric(out2$min)
+out2$med = as.numeric(out2$med)
+out2$max = as.numeric(out2$max)
+S1c = add_theme(ggplot(out2 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), R = 2.0") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+
+R = 3.0 
+input_mats <- cij_NGM(diag(c(1,9)), c(90000,10000), c(1,1.2), c(1,1))
+
+beta <- R/input_mats$beta_R
+
+res <- run_model(diag(c(1, 9)), rep(beta, t), c(90000, 10000), t, c(90,10), 2000, n_threads=3,
+                 susceptibility = c(1,1.2))
+tmp3A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp3B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp3A) = c("min", "med", "max")
+colnames(tmp3B) = c("min", "med", "max")
+out3 = data.frame(cbind(rbind(tmp3A, tmp3B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out3$min = as.numeric(out3$min)
+out3$med = as.numeric(out3$med)
+out3$max = as.numeric(out3$max)
+S1d = add_theme(ggplot(out3 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), R = 3.0") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+S1 = ggarrange(S1a, S1b, S1c, S1d, nrow = 2, ncol = 2, common.legend = T, legend = "bottom")
+ggsave(S1, file = "S1.eps", device = cairo_ps, width = 5, height = 5)
+ggsave(S1, file = "S1.pdf", device = "pdf", width = 5, height = 5)
+
+
+
+
+### FIGURE S2 ### 
+sus = 1 
+t <- 400
+b <- 0.05
+c_ij <- matrix(c(1,1,1,1), nrow=2)
+  
+N <- c(90000, 10000)
+input_mats <- cij_NGM(c_ij, N, c(1,sus), c(1,1))
+res <- run_model(input_mats$c_ij, rep(beta, t), N, t,
+                  c(90,10), 100, 3, susceptibility = c(1,sus))
+tmp1A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp1B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp1A) = c("min", "med", "max")
+colnames(tmp1B) = c("min", "med", "max")
+out1 = data.frame(cbind(rbind(tmp1A, tmp1B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out1$min = as.numeric(out1$min)
+out1$med = as.numeric(out1$med)
+out1$max = as.numeric(out1$max)
+S2a = add_theme(ggplot(out1 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), a = 1.0") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+
+sus = 2 
+t <- 400
+b <- 0.05
+c_ij <- matrix(c(1,1,1,1), nrow=2)
+
+N <- c(90000, 10000)
+input_mats <- cij_NGM(c_ij, N, c(1,sus), c(1,1))
+res <- run_model(input_mats$c_ij, rep(beta, t), N, t,
+                 c(90,10), 100, 3, susceptibility = c(1,sus))
+tmp2A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp2B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp2A) = c("min", "med", "max")
+colnames(tmp2B) = c("min", "med", "max")
+out2 = data.frame(cbind(rbind(tmp2A, tmp2B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out2$min = as.numeric(out2$min)
+out2$med = as.numeric(out2$med)
+out2$max = as.numeric(out2$max)
+S2b = add_theme(ggplot(out2 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), a = 2.0") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+
+
+sus = 3 
+t <- 400
+b <- 0.05
+c_ij <- matrix(c(1,1,1,1), nrow=2)
+
+N <- c(90000, 10000)
+input_mats <- cij_NGM(c_ij, N, c(1,sus), c(1,1))
+res <- run_model(input_mats$c_ij, rep(beta, t), N, t,
+                 c(90,10), 100, 3, susceptibility = c(1,sus))
+tmp3A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp3B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp3A) = c("min", "med", "max")
+colnames(tmp3B) = c("min", "med", "max")
+out3 = data.frame(cbind(rbind(tmp3A, tmp3B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out3$min = as.numeric(out3$min)
+out3$med = as.numeric(out3$med)
+out3$max = as.numeric(out3$max)
+S2c = add_theme(ggplot(out3 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), a = 3.0") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+
+sus = 4 
+t <- 400
+b <- 0.05
+c_ij <- matrix(c(1,1,1,1), nrow=2)
+
+N <- c(90000, 10000)
+input_mats <- cij_NGM(c_ij, N, c(1,sus), c(1,1))
+res <- run_model(input_mats$c_ij, rep(beta, t), N, t,
+                 c(90,10), 100, 3, susceptibility = c(1,sus))
+tmp4A = t(apply(res$full_results[4, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+tmp4B = t(apply(res$full_results[5, , ], 2, quantile, probs = c(0.025, 0.5, 0.975)))
+colnames(tmp4A) = c("min", "med", "max")
+colnames(tmp4B) = c("min", "med", "max")
+out4 = data.frame(cbind(rbind(tmp4A, tmp4B), group = c(rep("A", t), rep("B", t))), Day = c(1:t, 1:t))
+out4$min = as.numeric(out4$min)
+out4$med = as.numeric(out4$med)
+out4$max = as.numeric(out4$max)
+S2d = add_theme(ggplot(out4 ,aes(x=Day, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(group)), alpha = 0.5) + geom_line(aes(color=factor(group))) + ylab("I(t), a = 4.0") + xlab("Day") + scale_fill_brewer("Group", palette = "Dark2")+ scale_color_brewer("Group", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+
+
+S2 = ggarrange(S2a, S2b, S2c, S2d, nrow = 2, ncol = 2, common.legend = T, legend = "bottom")
+ggsave(S2, file = "S2.eps", device = cairo_ps, width = 5, height = 5)
+ggsave(S2, file = "S2.pdf", device = "pdf", width = 5, height = 5)
