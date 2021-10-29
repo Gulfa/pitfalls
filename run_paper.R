@@ -44,7 +44,7 @@ for (R in seq(1.1, 3, by=0.01)){
 
 #add
 #add_theme(ggplot(out ,aes(x=R, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(col=factor(time)), fill = "NA", linetype="dashed") + geom_line(aes(color=factor(time)))+ scale_y_continuous(trans='log10') + ylab("Relative risk") + xlab(expression(paste("Reproduction number ", R[0], sep = " "))) + scale_fill_brewer("Time (days)", palette = "Dark2")+ scale_color_brewer("Time (days)", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
-add_theme(ggplot(out ,aes(x=R, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(time)), alpha = 0.5) + geom_line(aes(color=factor(time)))+ scale_y_continuous(trans='log10') + ylab("Relative risk") + xlab(expression(paste("Reproduction number ", R[0], sep = " "))) + scale_fill_brewer("Time (days)", palette = "Dark2")+ scale_color_brewer("Time (days)", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
+add_theme(ggplot(out ,aes(x=R, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(time)), alpha = 0.5) + geom_line(aes(color=factor(time)))+ scale_y_continuous(trans='log10') + ylab("Relative risk in B compared to A") + xlab(expression(paste("Reproduction number ", R[0], sep = " "))) + scale_fill_brewer("Time (days)", palette = "Dark2")+ scale_color_brewer("Time (days)", palette = "Dark2"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))))
 
 ggsave("fig1_RR.png")
 
@@ -211,7 +211,7 @@ for( sus in seq(1, 3, by=0.1)){
   }
 }
 
-f3a = add_theme(ggplot(out ,aes(x=sus, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(assort)), alpha=0.5) + geom_line(aes(color=factor(assort)))+   ylab("Unexplained overrepresentation") + xlab(expression("a")) + scale_fill_brewer("Assortative mixing", palette = "Dark2")+ scale_color_brewer("Assortative mixing", palette = "Dark2")+ scale_y_continuous(labels = scales::percent_format(accuracy = 1))) + ggtitle("a)") + theme(plot.title = element_text(size = 8, face = "plain"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))
+f3a = add_theme(ggplot(out ,aes(x=sus, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(assort)), alpha=0.5) + geom_line(aes(color=factor(assort)))+   ylab("Unexplained relative risk") + xlab(expression("a")) + scale_fill_brewer("Assortative mixing", palette = "Dark2")+ scale_color_brewer("Assortative mixing", palette = "Dark2")+ scale_y_continuous(labels = scales::percent_format(accuracy = 1))) + ggtitle("a)") + theme(plot.title = element_text(size = 8, face = "plain"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))
 # f3a = add_theme(ggplot(out ,aes(x=sus, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(col=factor(assort)), fill = "NA", linetype = "dashed") + geom_line(aes(color=factor(assort)), size = 1.5)+   ylab("Unexplained overrepresentation") + xlab(expression("a")) + scale_fill_brewer("Assortative mixing", palette = "Dark2")+ scale_color_brewer("Assortative mixing", palette = "Dark2")+ scale_y_continuous(labels = scales::percent_format(accuracy = 1))) + ggtitle("a)") + theme(plot.title = element_text(size = 8, face = "plain"))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))
 
 ggsave(f3a, "fig3_1_uo.png")
@@ -283,7 +283,7 @@ for( hc in seq(1, 4, by=0.2)){
   }
 }
 
-add_theme(ggplot(out ,aes(x=hc, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(assort)), alpha=0.5) + geom_line(aes(color=factor(assort)))+   ylab("Unexplained overrepresentation") + xlab("High-high contact")+ scale_fill_brewer("Assortative mixing", palette = "Dark2")+ scale_color_brewer("Assortative mixing", palette = "Dark2")+ scale_y_continuous(labels = scales::percent_format(accuracy = 1)))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))
+add_theme(ggplot(out ,aes(x=hc, y=med, ymin=min, ymax=max)) + geom_ribbon(aes(fill=factor(assort)), alpha=0.5) + geom_line(aes(color=factor(assort)))+   ylab("Unexplained relative risk") + xlab("High-high contact")+ scale_fill_brewer("Assortative mixing", palette = "Dark2")+ scale_color_brewer("Assortative mixing", palette = "Dark2")+ scale_y_continuous(labels = scales::percent_format(accuracy = 1)))# + scale_x_continuous(expand = expand_scale(mult = c(0, 0.1))
 ggsave("fig4_1_uo.png")
 
 
