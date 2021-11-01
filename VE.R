@@ -4,6 +4,7 @@ library(data.table)
 library(dplyr)
 source("model.R")
 
+t <- 100
 
 # Checking final size
 fs <- c()
@@ -50,4 +51,5 @@ df <- rbind(data.frame(t=1:100,
                        Model="Assortative mixing"))
 
 add_theme(ggplot(df) + geom_line(aes(x=t, y=RR, color=Model), size=2) + ylab("Incidence ratio") + xlab("Days"))
-ggsave("RR_over_time.png")
+ggsave("RR_over_time.pdf")
+ggsave("RR_over_time.eps")
