@@ -159,5 +159,5 @@ run_regs <- function(cimat, crmat, R0, susceptibility, transmisibility, on_mean=
 
 
 add_theme <- function(q){
-  q + theme_bw() + theme(text = element_text(size=26))+ scale_size_identity()
+  q + theme_bw() + theme(text = element_text(size=8))+ scale_size_identity()
 }
