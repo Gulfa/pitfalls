@@ -1,12 +1,15 @@
 
-prior_assort = function(x, sigma = 1, a = 0.05, b = 20){ # Uniform prior for assortativity
+#' Uniform prior for assortativity
+prior_assort = function(x, sigma = 1, a = 0.05, b = 20){ 
   return(dunif(x, min = a, max = b))
 }
 
+#' Normal prior for b
 prior_b = function(x, mu = 1, sigma = 3){
   return(dnorm(x, mu, sigma))
 }
 
+#' Combine priors
 prior = function(theta, calibrate_assort = F){
   if(calibrate_assort){
     assort = theta[2]
@@ -18,6 +21,7 @@ prior = function(theta, calibrate_assort = F){
   }
 }
 
+#' Perform one simulation
 perform_sim = function(){
   assort = runif(1, min = 0.05, max = 20)
   b = rnorm(1, mean = 1.2, sd = 3)
@@ -29,6 +33,7 @@ perform_sim = function(){
   
 }
 
+# Run the model with given parameters and compare to the observed data
 compare_cases = function(theta_p, 
                          N_obs_inf_A,
                          N_obs_inf_B){
@@ -54,6 +59,7 @@ compare_cases = function(theta_p,
   return(c(Dist_A, Dist_B))
 }
 
+#' Main implementation of the sequential ABC MCMC algorithm
 ABC_MCMC = function(N_A,
                     N_B, # observed counts in A and B
                     start_val, # start point of algorithm 
