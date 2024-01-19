@@ -1,20 +1,23 @@
+# Stochastic SIR model with n compartments
 dt <- user(1)
+steps_per_day <- 1/dt
 initial(time) <- 0
 update(time) <- (step + 1) * dt
 N_steps <- user()
 
+# Time varying beta
 beta <- beta_day[step]
 dim(beta_day) <- N_steps
 beta_day[] <- user()
 import <- user(0)
 
-
+# Main compartments updates
 update(S[]) <- S[i] - n_SI[i] - n_import[i]
 update(I[]) <- I[i] + n_SI[i] - n_IR[i] + n_import[i]
 update(R[]) <- R[i] + n_IR[i]
-update(inc[]) <- n_SI[i]
-## Individual probabilities of transition:
+update(inc[]) <- if(step %% steps_per_day == 0) n_SI[i] else inc[i] + n_SI[i]
 
+## Individual probabilities of transition:
 p_SI[] <- 1 - exp(-sum(lambda_ij[i,])* dt) # S to I
 p_IR <- 1 - exp(-gamma * dt) # I to R
 
@@ -23,7 +26,7 @@ p_IR <- 1 - exp(-gamma * dt) # I to R
 n_SI[] <- rbinom(S[i], p_SI[i])
 n_IR[] <- rbinom(I[i], p_IR)
 
-
+# Forece of infection
 lambda_ij[,] <- beta * mixing_matrix[i,j]*I[j]/sum(N)*susceptibility[i]*transmisibility[j]
 
 n_import[] <- rbinom(S[i], import/sum(S))
@@ -51,9 +54,8 @@ dim(beta_norm) <- n
 dim(susceptibility) <- n
 dim(transmisibility) <- n
 
-## User defined parameters - default in parentheses:
+# User defined parameters
 gamma <- user(0.1)
-
 n <- user(4)
 S_ini[] <- user()
 I_ini[] <- user()

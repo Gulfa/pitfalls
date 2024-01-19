@@ -2,7 +2,7 @@ odin_model <- odin.dust::odin_dust("odinmodel.R")
 
 
 
-
+#' Runs SIR model with given mixing matrix, beta over time and other key parameters
 run_model <- function(mixing_matrix, beta_day, N, t, I_ini,
                       n_particles, n_threads=1, beta_norm=NULL,
                       susceptibility=NULL,
@@ -43,15 +43,15 @@ run_model <- function(mixing_matrix, beta_day, N, t, I_ini,
               full_results=res))
 }
 
+#' Plot 2x2 matrix of relative risk
 plot_2x2_RR <- function(fractions){
 
   RR <- fractions[2,]  / fractions[1,]
-
   ggplot(data.frame(RR=RR)) + geom_histogram(aes(x=RR))
-  
-  
+
 }
 
+#' Plot model trajectories
 plot_history <- function(hist, var="I"){
   n <- (dim(hist)[1] - 1)/4
   print(n)
@@ -78,6 +78,7 @@ plot_history <- function(hist, var="I"){
 
 }
 
+#' Construct the NGM matrix from a mixing matrix and other parameters
 cij_NGM <- function(c_ij, N, susceptibility, transmisibility, gamma=1/3, norm_contacts=NULL){
   if(is.null(norm_contacts)){
     norm <- c_ij %*% N/sum(N)
@@ -95,9 +96,8 @@ cij_NGM <- function(c_ij, N, susceptibility, transmisibility, gamma=1/3, norm_co
               beta_R=beta_R))
 }
 
-
+#' Run the model with 4 compartments for the paper
 run_4x4 <- function(cimat, crmat, R0, susceptibility, transmisibility, gamma=1/3, n=100){
-
   N_N <- 90000
   N_I <- 10000
   N_IH <- 5000
@@ -129,7 +129,7 @@ run_4x4 <- function(cimat, crmat, R0, susceptibility, transmisibility, gamma=1/3
 
 }
 
-
+#' Run the model with 4 compartments and then either on the mean or for each simulation run a regression model to estimate regression coefficients
 run_regs <- function(cimat, crmat, R0, susceptibility, transmisibility, on_mean=FALSE,
                      n=100, gamma=1/3){
   
@@ -157,7 +157,7 @@ run_regs <- function(cimat, crmat, R0, susceptibility, transmisibility, on_mean=
 }
 
 
-
+#' Theme for plots
 add_theme <- function(q){
   q + theme_bw() + theme(text = element_text(size=8))+ scale_size_identity()
 }
